@@ -1,3 +1,4 @@
+import 'package:cloto/core/responsividade.dart';
 import 'package:cloto/theme/tema.dart';
 import 'package:cloto/theme/tema_extension.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,8 @@ class ClotoMenuLateral extends StatefulWidget {
   final List<ClotoItemMenuLateral> itens;
   final Alignment alinhamento;
 
+  final double larguraMinimaParaExpandir;
+
   const ClotoMenuLateral({
     super.key,
     this.estadoInicial = EstadoMenuLateral.expandido,
@@ -30,7 +33,8 @@ class ClotoMenuLateral extends StatefulWidget {
     this.cabecalho,
     this.rodape,
     required this.itens,
-    this.alinhamento = Alignment.topLeft,
+    this.alinhamento = Alignment. topLeft,
+    this.larguraMinimaParaExpandir = 300,
   }) : assert(estadoFechado != EstadoMenuLateral.expandido);
 
   @override
@@ -39,105 +43,147 @@ class ClotoMenuLateral extends StatefulWidget {
 
 class _ClotoMenuLateralState extends State<ClotoMenuLateral> {
   late EstadoMenuLateral _estado;
+  late EstadoMenuLateral _estadoManual;
 
   @override
   void initState() {
     super.initState();
     _estado = widget.estadoInicial;
+    _estadoManual = widget.estadoInicial;
   }
 
   void _alternarEstado() {
     setState(() {
       if (_estado == EstadoMenuLateral.expandido) {
+        _estadoManual = widget.estadoFechado;
         _estado = widget.estadoFechado;
       } else {
+        _estadoManual = EstadoMenuLateral.expandido;
         _estado = EstadoMenuLateral.expandido;
       }
     });
   }
 
+  EstadoMenuLateral _calcularEstadoResponsivo(double larguraTela) {
+    if (larguraTela < widget.larguraMinimaParaExpandir) {
+      return widget.estadoFechado;
+    }
+
+    return _estadoManual;
+  }
+
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder:  (context, constraints) {
+        final larguraTela = MediaQuery.of(context).size.width;
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final novoEstado = _calcularEstadoResponsivo(larguraTela);
+          if (_estado != novoEstado) {
+            setState(() {
+              _estado = novoEstado;
+            });
+          }
+        });
+
+        return _buildMenu(context, larguraTela);
+      },
+    );
+  }
+
+  Widget _buildMenu(BuildContext context, double larguraTela) {
     final tema = context.tema;
 
     if (_estado == EstadoMenuLateral.escondido) {
       return Align(
         alignment: widget.alinhamento,
-        child: Padding(
+        child:  Padding(
           padding: EdgeInsets.all(tema.espacamento * 2),
-          child: FloatingActionButton.small(
+          child: FloatingActionButton. small(
             onPressed: _alternarEstado,
-            backgroundColor: tema.cores.primary.cor,
+            backgroundColor: tema.cores.primary. cor,
             child: Icon(Icons.menu, color: tema.cores.primaryContent.cor),
           ),
         ),
       );
     }
 
-    final bool ehCompactoDestino = _estado == EstadoMenuLateral.compacto;
+    final bool ehCompactoDestino = _estado == EstadoMenuLateral. compacto;
     final double larguraDestino = ehCompactoDestino ? widget.larguraCompacto : widget.larguraExpandido;
+    final bool permiteExpandir = larguraTela >= widget.larguraMinimaParaExpandir;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeInOut,
-      width: larguraDestino,
-      clipBehavior: Clip.hardEdge,
-      padding: EdgeInsets.symmetric(
-        vertical: tema.espacamento * 2,
-        horizontal: tema.espacamento * (ehCompactoDestino ? 1 : 2),
-      ),
-      decoration: BoxDecoration(
-        color: tema.cores.base100.cor,
-        border: Border(right: BorderSide(color: tema.cores.base300.cor.withOpacity(0.6), width: 1)),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 12,
-            offset: const Offset(2, 0),
-            color: tema.cores.baseContent.cor.withOpacity(tema.opacidadeShadow),
+    return Expanded(
+      child: Container(
+        constraints: BoxConstraints(maxWidth: larguraDestino),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeInOut,
+          width: larguraDestino,
+          clipBehavior:  Clip.hardEdge,
+          padding: EdgeInsets.symmetric(
+            vertical: tema.espacamento * 2,
+            horizontal: tema.espacamento * (ehCompactoDestino ? 1 : 2),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(tema, ehCompactoDestino),
-
-          if (!ehCompactoDestino && widget.cabecalho != null) ...[
-            SizedBox(height: tema.espacamento * 1.5),
-            widget.cabecalho!,
-          ],
-
-          SizedBox(height: tema.espacamento * 2),
-
-          Expanded(
-            child: ListView.separated(
-              itemCount: widget.itens.length,
-              separatorBuilder: (_, __) => SizedBox(height: tema.espacamento * 0.5),
-              itemBuilder: (context, index) {
-                final item = widget.itens[index];
-                return ClotoItemMenuLateral(
-                  icone: item.icone,
-                  titulo: item.titulo,
-                  ativo: item.ativo,
-                  onTap: item.onTap,
-                  compacto: ehCompactoDestino,
-                );
-              },
+          decoration: BoxDecoration(
+            color: tema.cores.base100.cor,
+            border: Border(
+              right: BorderSide(
+                color: tema. cores.base300.cor.withOpacity(0.6),
+                width: 1,
+              ),
             ),
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 12,
+                offset: const Offset(2, 0),
+                color: tema.cores.baseContent.cor.withOpacity(tema.opacidadeShadow),
+              ),
+            ],
           ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(tema, ehCompactoDestino, permiteExpandir),
 
-          if (widget.rodape != null && !ehCompactoDestino) ...[
-            SizedBox(height: tema.espacamento),
-            Divider(color: tema.cores.base300.cor.withOpacity(0.5)),
-            SizedBox(height: tema.espacamento),
-            widget.rodape!,
-          ],
-        ],
+              if (! ehCompactoDestino && widget.cabecalho != null) ...[
+                SizedBox(height: tema.espacamento * 1.5),
+                widget. cabecalho!,
+              ],
+
+              SizedBox(height: tema.espacamento * 2),
+
+              Expanded(
+                child: ListView.separated(
+                  itemCount: widget.itens.length,
+                  separatorBuilder: (_, __) => SizedBox(height: tema.espacamento * 0.5),
+                  itemBuilder: (context, index) {
+                    final item = widget.itens[index];
+                    return ClotoItemMenuLateral(
+                      icone: item.icone,
+                      titulo: item.titulo,
+                      ativo: item. ativo,
+                      onTap: item.onTap,
+                      compacto: ehCompactoDestino,
+                    );
+                  },
+                ),
+              ),
+
+              if (widget.rodape != null && !ehCompactoDestino) ...[
+                SizedBox(height:  tema.espacamento),
+                Divider(color: tema.cores.base300.cor.withOpacity(0.5)),
+                SizedBox(height: tema. espacamento),
+                widget.rodape!,
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildHeader(TemaCloto tema, bool ehCompacto) {
+  Widget _buildHeader(TemaCloto tema, bool ehCompacto, bool permiteExpandir) {
     if (ehCompacto) {
       return Column(
         children: [
@@ -145,16 +191,19 @@ class _ClotoMenuLateralState extends State<ClotoMenuLateral> {
             SizedBox(
               width: widget.larguraCompacto,
               height: 40,
-              child: FittedBox(fit: BoxFit.contain, child: widget.logo!),
+              child: FittedBox(fit: BoxFit. contain, child: widget.logo! ),
             ),
-          IconButton(
-            onPressed: _alternarEstado,
-            tooltip: "Expandir menu",
-            icon: Icon(Icons.chevron_right, color: tema.cores.baseContent.cor),
-            padding: EdgeInsets.zero,
-          ),
+
+          if (permiteExpandir)
+            IconButton(
+              onPressed: _alternarEstado,
+              tooltip: "Expandir menu",
+              icon:  Icon(Icons.chevron_right, color: tema.cores.baseContent.cor),
+              padding: EdgeInsets.zero,
+            ),
+
           SizedBox(height: tema.espacamento),
-          Divider(color: tema.cores.base300.cor.withOpacity(0.5)),
+          Divider(color:  tema.cores.base300.cor.withOpacity(0.5)),
         ],
       );
     }
@@ -165,7 +214,7 @@ class _ClotoMenuLateralState extends State<ClotoMenuLateral> {
           children: [
             if (widget.titulo != null)
               Expanded(
-                child: Text(
+                child:  Text(
                   widget.titulo!,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
@@ -178,12 +227,16 @@ class _ClotoMenuLateralState extends State<ClotoMenuLateral> {
                 ),
               )
             else
-            Spacer(),
+              const Spacer(),
             IconButton(
               onPressed: _alternarEstado,
-              tooltip: widget.estadoFechado == EstadoMenuLateral.compacto ? "Compactar menu" : "Esconder menu",
-              icon: Icon(
-                widget.estadoFechado == EstadoMenuLateral.compacto ? Icons.chevron_left : Icons.close,
+              tooltip:  widget.estadoFechado == EstadoMenuLateral.compacto
+                  ? "Compactar menu"
+                  : "Esconder menu",
+              icon:  Icon(
+                widget.estadoFechado == EstadoMenuLateral.compacto
+                    ? Icons.chevron_left
+                    : Icons.close,
                 color: tema.cores.baseContent.cor,
               ),
               padding: EdgeInsets.zero,
