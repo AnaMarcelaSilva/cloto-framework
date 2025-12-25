@@ -1,6 +1,5 @@
+import 'package:cloto/theme/tema_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:cloto/theme/controller/temas.dart';
-
 import 'item_menu_lateral.dart';
 
 class ClotoMenuLateral extends StatefulWidget {
@@ -48,7 +47,7 @@ class _ClotoMenuLateralState extends State<ClotoMenuLateral> {
 
   @override
   Widget build(BuildContext context) {
-    final tema = TemasCloto.temaSelecionado;
+    final tema = context.tema;
 
     if (!aberto) {
       return Align(
@@ -58,10 +57,7 @@ class _ClotoMenuLateralState extends State<ClotoMenuLateral> {
           child: FloatingActionButton.small(
             onPressed: alternar,
             backgroundColor: tema.cores.primary.cor,
-            child: Icon(
-              Icons.menu,
-              color: tema.cores.primaryContent.cor,
-            ),
+            child: Icon(Icons.menu, color: tema.cores.primaryContent.cor),
           ),
         ),
       );
@@ -74,18 +70,13 @@ class _ClotoMenuLateralState extends State<ClotoMenuLateral> {
       padding: EdgeInsets.all(tema.espacamento * 2),
       decoration: BoxDecoration(
         color: tema.cores.base100.cor,
-        border: Border(
-          right: BorderSide(
-            color: tema.cores.base300.cor.withOpacity(.6),
-          ),
-        ),
+        border: Border(right: BorderSide(color: tema.cores.base300.cor.withOpacity(.6))),
         boxShadow: [
           BoxShadow(
             blurRadius: 12,
             offset: const Offset(2, 0),
-            color: tema.cores.baseContent.cor
-                .withOpacity(tema.opacidadeShadow),
-          )
+            color: tema.cores.baseContent.cor.withOpacity(tema.opacidadeShadow),
+          ),
         ],
       ),
       child: Column(
@@ -113,32 +104,20 @@ class _ClotoMenuLateralState extends State<ClotoMenuLateral> {
               IconButton(
                 onPressed: alternar,
                 tooltip: "Fechar menu",
-                icon: Icon(
-                  Icons.menu_open,
-                  color: tema.cores.baseContent.cor,
-                ),
-              )
+                icon: Icon(Icons.menu_open, color: tema.cores.baseContent.cor),
+              ),
             ],
           ),
 
-          if (widget.cabecalho != null) ...[
-            SizedBox(height: tema.espacamento * 1.5),
-            widget.cabecalho!,
-          ],
+          if (widget.cabecalho != null) ...[SizedBox(height: tema.espacamento * 1.5), widget.cabecalho!],
 
           SizedBox(height: tema.espacamento),
 
-          Flexible(
-            child: ListView(
-              children: widget.itens,
-            ),
-          ),
+          Flexible(child: ListView(children: widget.itens)),
 
           if (widget.rodape != null) ...[
             const SizedBox(height: 8),
-            Divider(
-              color: tema.cores.base300.cor.withOpacity(.5),
-            ),
+            Divider(color: tema.cores.base300.cor.withOpacity(.5)),
             SizedBox(height: tema.espacamento),
             widget.rodape!,
           ],

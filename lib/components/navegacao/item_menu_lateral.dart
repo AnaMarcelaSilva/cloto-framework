@@ -1,5 +1,4 @@
-import 'package:cloto/theme/controller/temas.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:cloto/cloto.dart';
 import 'package:flutter/material.dart';
 
 class ClotoItemMenuLateral extends StatelessWidget {
@@ -10,15 +9,15 @@ class ClotoItemMenuLateral extends StatelessWidget {
 
   const ClotoItemMenuLateral({
     super.key,
-    required this.icone,
-    required this.titulo,
+    required this. icone,
+    required this. titulo,
     this.ativo = false,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final tema = TemasCloto.temaSelecionado;
+    final tema = context.tema;
 
     final cor = ativo
         ? tema.cores.primary.cor
