@@ -1,6 +1,6 @@
 import 'package:cloto/theme/tema.dart';
 
-import 'cor.dart';
+import '../cor.dart';
 
 class TemaClaroCloto {
 
