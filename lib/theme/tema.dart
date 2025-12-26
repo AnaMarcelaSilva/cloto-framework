@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'controller/cor.dart';
 
 class TemaCloto {
@@ -75,6 +77,41 @@ class TemaCloto {
       opacidadeShadow: opacidadeShadow,
       fontePrimaria: fontePrimaria,
       fonteSecundaria: fonteSecundaria,
+    );
+  }
+
+  static TemaCloto customizado({required Color corPrimaria, required Color corSecundaria, required Color corBase}) {
+    return TemaCloto._(
+      id: 0,
+      idioma: 'pt',
+      cores: CoresCloto(
+        id: 0,
+        primary: CorCloto.carregar(corPrimaria.value.toRadixString(16).substring(2)),
+        primaryContent: CorCloto.carregar('FFFFFF'),
+        primaryFocus: CorCloto.carregar('CCCCCC'),
+        secondary: CorCloto.carregar(corSecundaria.value.toRadixString(16).substring(2)),
+        secondaryContent: CorCloto.carregar('FFFFFF'),
+        secondaryFocus: CorCloto.carregar('CCCCCC'),
+        base100: CorCloto.carregar(corBase.value.toRadixString(16).substring(2)),
+        base200: CorCloto.carregar(corBase.value.toRadixString(16).substring(2)),
+        base300: CorCloto.carregar(corBase.value.toRadixString(16).substring(2)),
+        baseContent: CorCloto.carregar('000000'),
+        success: CorCloto.carregar('28A745'),
+        warning: CorCloto.carregar('FFC107'),
+        error: CorCloto.carregar('DC3545'),
+      ),
+      selecionado: false,
+      borderRadiusXG: 16.0,
+      borderRadiusG: 12.0,
+      borderRadiusM: 8.0,
+      borderRadiusP: 4.0,
+      espacamento: 8.0,
+      textoPadrao: 14.0,
+      textoGrande: 18.0,
+      textoPequeno: 12.0,
+      opacidadeShadow: 0.2,
+      fontePrimaria: 'Roboto',
+      fonteSecundaria: 'OpenSans',
     );
   }
 }

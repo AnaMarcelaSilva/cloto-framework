@@ -26,6 +26,8 @@ extension ClotoTemaExtension on BuildContext {
   /// Alterna entre claro e escuro
   void alternarTema() => temaNotifier.alternarTema();
 
+  void sortearTema() => temaNotifier.sortearTema();
+
   /// Verifica se está em tema escuro
   bool get ehTemaEscuro => temaNotifier.ehTemaEscuro;
 }

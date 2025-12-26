@@ -76,12 +76,23 @@ class ClotoTemaNotifier extends ChangeNotifier {
     }
   }
 
+  void definirTemaPersonalizado(TemaCloto temaPersonalizado) {
+    trocarTema(temaPersonalizado);
+  }
+
   void alternarTema() {
     if (_temaAtual.id == temaClaro.id) {
       trocarTema(temaEscuro);
     } else {
       trocarTema(temaClaro);
     }
+  }
+
+  void sortearTema() {
+    final todos = todosTemas;
+    todos.removeWhere((t) => t.id == _temaAtual.id);
+    todos.shuffle();
+    trocarTema(todos.first);
   }
 
 
