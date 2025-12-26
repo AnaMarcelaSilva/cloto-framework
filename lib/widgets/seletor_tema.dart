@@ -225,7 +225,7 @@ class _ClotoSeletorTemaState extends State<ClotoSeletorTema> {
                 if (widget.exibirIcone)
                   Icon(
                     Icons.palette_outlined,
-                    color: tema.cores.baseContent.cor,
+                    color: tema.cores.primary.cor,
                     size: 20,
                   ),
                 if (widget.exibirTexto && widget.exibirIcone)
